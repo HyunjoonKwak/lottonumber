@@ -22,24 +22,36 @@ def check_user_numbers():
         input_set = set(input_numbers)
 
         # 과거 당첨 번호와 비교
-        results = {'1등': [], '3등': [], '4등': []}
+        results = {'1등': [], '2등': [], '3등': [], '4등': []}
         for index, row in lotto_data.iterrows():
             draw_set = {row['Num1'], row['Num2'], row['Num3'], row['Num4'], row['Num5'], row['Num6']}
+            bonus_number = row['보너스']
             match_count = len(input_set.intersection(draw_set))
             
             if match_count == 6:
+                # 6개 일치 -> 1등
                 results['1등'].append({
                     '회차': row['회차'],
                     '추첨일': row['추첨일'],
                     '당첨번호': draw_set
                 })
+            elif match_count == 5 and bonus_number in input_set:
+                # 5개 + 보너스 번호 일치 -> 2등
+                results['2등'].append({
+                    '회차': row['회차'],
+                    '추첨일': row['추첨일'],
+                    '당첨번호': draw_set,
+                    '보너스번호': bonus_number
+                })
             elif match_count == 5:
+                # 5개 일치 -> 3등
                 results['3등'].append({
                     '회차': row['회차'],
                     '추첨일': row['추첨일'],
                     '당첨번호': draw_set
                 })
             elif match_count == 4:
+                # 4개 일치 -> 4등
                 results['4등'].append({
                     '회차': row['회차'],
                     '추첨일': row['추첨일'],
@@ -52,7 +64,10 @@ def check_user_numbers():
             if matches:
                 result_message += f"\n=== {rank} ===\n"
                 for match in matches:
-                    result_message += f"회차: {match['회차']}, 추첨일: {match['추첨일']}, 당첨번호: {match['당첨번호']}\n"
+                    result_message += f"회차: {match['회차']}, 추첨일: {match['추첨일']}, 당첨번호: {match['당첨번호']}"
+                    if rank == '2등':  # 2등일 경우 보너스 번호 추가 표시
+                        result_message += f", 보너스번호: {match['보너스번호']}"
+                    result_message += "\n"
         
         if not result_message:
             result_message = "입력한 번호는 과거 당첨 번호와 일치하지 않았습니다."
